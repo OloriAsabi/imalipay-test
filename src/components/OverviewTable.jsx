@@ -201,8 +201,8 @@ const OverviewTable = ({placeholder}) => {
           <Button onClick={() => previousPage()} disabled={!canPreviousPage}>Previous</Button>
           <Button onClick={() => nextPage()} disabled={!canNextPage}>Next</Button>
         </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between rounded-md shadow-sm space-x-10" aria-label="Pagination">
-          <div className="relative z-0 inline-flex items-center ml-auto mr-auto active:bg-gray-500 active:border-gray-300 rounded-md shadow-sm space-x-10" aria-label="Pagination">
+        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between" aria-label="Pagination">
+          <div className="relative z-0 inline-flex items-center ml-auto mr-auto rounded-md shadow-sm space-x-10" aria-label="Pagination">
                 {paginationRange?.map((pageNumber, index) => {
                     if (pageNumber === DOTS) {
                         return (
