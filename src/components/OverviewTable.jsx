@@ -1,12 +1,15 @@
 import React, {useMemo, useEffect, useState} from 'react'
-import { useTable, useGlobalFilter, useAsyncDebounce,  usePagination, useRowSelect } from "react-table";
+import { useTable,
+   useGlobalFilter, 
+   useAsyncDebounce,  
+   usePagination, 
+   useRowSelect} from "react-table";
 import { useRowSelectColumn } from '@lineup-lite/hooks';
 import { customersData } from '../data/dummy';
 import { Button, PageButton } from '../contexts/Button'
-import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 import { classNames } from '../contexts/utils';
 import { GrFormSearch } from 'react-icons/gr';
-import Pagination from './Pagination';
+import {DOTS, useCustomPagination} from './useCustomPagination';
 
  export function GlobalFilter({
     globalFilter,
@@ -81,7 +84,7 @@ export function AvatarCell({ value, column, row }) {
 const OverviewTable = ({placeholder}) => {
 
   const data = useMemo(() => customersData(), []);
-  const [current, setCurrent] = useState(1);
+  
   
     const columns = useMemo(() => [
       {
@@ -118,13 +121,10 @@ const OverviewTable = ({placeholder}) => {
             page, 
             canPreviousPage,
             canNextPage,
-            pageCount,
-            gotoPage,
-            pageIndex,
-            pageSize,
             nextPage,
             previousPage,
-            pageOptions,
+            gotoPage,
+            pageCount,
             setPageSize,
             state, 
             preGlobalFilteredRows,
@@ -138,7 +138,13 @@ const OverviewTable = ({placeholder}) => {
             useRowSelect,
             useRowSelectColumn
             );
-     console.log(current);
+            const {pageIndex} = state;
+            const paginationRange = useCustomPagination({
+              totalPageCount: pageCount,
+              currentPage: pageIndex
+          });
+          console.log(paginationRange);
+      
             useEffect(() => {
                   setPageSize(5);
             }, [setPageSize]);
@@ -190,62 +196,41 @@ const OverviewTable = ({placeholder}) => {
           </div>
          </div>
 
-         <div className="py-3 flex items-center justify-center pt-10">
+         <div className="py-3 flex items-center text-center justify-center pt-10">
         <div className="flex-1 flex justify-between md:hidden">
           <Button onClick={() => previousPage()} disabled={!canPreviousPage}>Previous</Button>
           <Button onClick={() => nextPage()} disabled={!canNextPage}>Next</Button>
         </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <div className="flex gap-x-2">
-            <span className="text-sm text-gray-700">
-              Page <span className="font-medium">{state.pageIndex + 1}</span> of <span className="font-medium">{pageOptions.length}</span>
-            </span>
+        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between rounded-md shadow-sm space-x-10" aria-label="Pagination">
+          <div className="relative z-0 inline-flex items-center ml-auto mr-auto active:bg-gray-500 active:border-gray-300 rounded-md shadow-sm space-x-10" aria-label="Pagination">
+                {paginationRange?.map((pageNumber, index) => {
+                    if (pageNumber === DOTS) {
+                        return (
+                            <PageButton
+                            key={index}>...</PageButton>
+                        );
+                    }
+
+                    if ((pageNumber - 1) === pageIndex) {
+                        return (
+                            <PageButton
+                                key={index}
+                                className=' active:bg-gray-500 active:border-gray-300'
+                                onClick={() => gotoPage(pageNumber - 1)}>{pageNumber}</PageButton>
+                        );
+                    }
+
+                    return (
+                        <PageButton
+                            key={index}
+                            className='active:bg-gray-500 active:border-gray-300'
+                            onClick={() => gotoPage(pageNumber - 1)}>{pageNumber}</PageButton>
+                    );
+                })}
+             </div>
           </div>
-          <div>
-            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-              <Pagination 
-              onPageChange={(page) => setCurrent(page)}
-              page={page}
-              current={current}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              pageCount={pageCount}/>
-              <PageButton
-                className="rounded-l-md"
-                onClick={() => gotoPage(0)}
-                disabled={!canPreviousPage}
-              >
-                <span className="sr-only">First</span>
-                <HiChevronLeft className="h-5 w-5" aria-hidden="true" />
-              </PageButton>
-              <PageButton
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-              >
-                <span className="sr-only">Previous</span>
-                <HiChevronLeft className="h-5 w-5" aria-hidden="true" />
-              </PageButton>
-              <PageButton
-                onClick={() => nextPage()}
-                disabled={!canNextPage
-                }>
-                <span className="sr-only">Next</span>
-                <HiChevronRight className="h-5 w-5" aria-hidden="true" />
-              </PageButton>
-              <PageButton
-                className="rounded-r-md"
-                onClick={() => gotoPage(pageCount - 1)}
-                disabled={!canNextPage}
-              >
-                <span className="sr-only">Last</span>
-                <HiChevronRight className="h-5 w-5" aria-hidden="true" />
-              </PageButton>
-              </nav>
             </div>
           </div>
-      </div>
-
-    </div>
   )
 }
 
